@@ -1,0 +1,20 @@
+@echo off
+"C:\\Users\\tqpha\\AppData\\Local\\SDK\\cmake\\3.22.1\\bin\\cmake.exe" ^
+  "-HC:\\Users\\tqpha\\Flutter_SDK\\flutter\\packages\\flutter_tools\\gradle\\src\\main\\groovy" ^
+  "-DCMAKE_SYSTEM_NAME=Android" ^
+  "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" ^
+  "-DCMAKE_SYSTEM_VERSION=21" ^
+  "-DANDROID_PLATFORM=android-21" ^
+  "-DANDROID_ABI=armeabi-v7a" ^
+  "-DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a" ^
+  "-DANDROID_NDK=C:\\Users\\tqpha\\AppData\\Local\\SDK\\ndk\\26.3.11579264" ^
+  "-DCMAKE_ANDROID_NDK=C:\\Users\\tqpha\\AppData\\Local\\SDK\\ndk\\26.3.11579264" ^
+  "-DCMAKE_TOOLCHAIN_FILE=C:\\Users\\tqpha\\AppData\\Local\\SDK\\ndk\\26.3.11579264\\build\\cmake\\android.toolchain.cmake" ^
+  "-DCMAKE_MAKE_PROGRAM=C:\\Users\\tqpha\\AppData\\Local\\SDK\\cmake\\3.22.1\\bin\\ninja.exe" ^
+  "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\\Intern\\app\\Day_1+2\\build\\app\\intermediates\\cxx\\Debug\\606s5n4g\\obj\\armeabi-v7a" ^
+  "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=D:\\Intern\\app\\Day_1+2\\build\\app\\intermediates\\cxx\\Debug\\606s5n4g\\obj\\armeabi-v7a" ^
+  "-DCMAKE_BUILD_TYPE=Debug" ^
+  "-BD:\\Intern\\app\\Day_1+2\\android\\app\\.cxx\\Debug\\606s5n4g\\armeabi-v7a" ^
+  -GNinja ^
+  -Wno-dev ^
+  --no-warn-unused-cli
