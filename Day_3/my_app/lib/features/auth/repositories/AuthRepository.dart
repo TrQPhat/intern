@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:my_app/models/User.dart';
+import 'package:my_app/models/user.dart';
 
 class AuthRepository {
   final String baseURL = "http://10.0.2.2:5000/api/users";
