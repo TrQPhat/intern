@@ -1,5 +1,10 @@
+import 'package:isar/isar.dart';
+
+part 'contract.g.dart';
+
+@Collection()
 class Contract {
-  final int? contractId;
+  Id? contractId;
   final int userId;
   final String contractType;
   final DateTime startDate;

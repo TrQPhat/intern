@@ -4,13 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_app/features/contract/bloc/ContractBloc.dart';
 import 'package:my_app/features/contract/bloc/ContractEvent.dart';
 import 'package:my_app/features/contract/bloc/ContractState.dart';
-import 'package:my_app/models/Contract.dart';
+import 'package:my_app/models/contract.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Future.delayed(Duration.zero, () {
+      context.read<ContractBloc>().add(LoadContracts());
+    });
     return Scaffold(
       appBar: AppBar(
         title: const Text('Danh Sách Hợp Đồng'),
@@ -104,37 +107,36 @@ class HomeScreen extends StatelessWidget {
   void _showContractDetails(BuildContext context, Contract contract) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Chi tiết hợp đồng ${contract.contractId}'),
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildDetailRow('Mã hợp đồng', "${contract.contractId}"),
-                  _buildDetailRow('Mã người dùng', "${contract.userId}"),
-                  _buildDetailRow('Loại hợp đồng', contract.contractType),
-                  _buildDetailRow(
-                    'Ngày bắt đầu',
-                    _formatDate(contract.startDate),
-                  ),
-                  _buildDetailRow(
-                    'Ngày kết thúc',
-                    _formatDate(contract.endDate),
-                  ),
-                  _buildDetailRow('Trạng thái', contract.status),
-                  _buildDetailRow('Ngày tạo', _formatDate(contract.createdAt)),
-                ],
+      builder: (context) => AlertDialog(
+        title: Text('Chi tiết hợp đồng ${contract.contractId}'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDetailRow('Mã hợp đồng', "${contract.contractId}"),
+              _buildDetailRow('Mã người dùng', "${contract.userId}"),
+              _buildDetailRow('Loại hợp đồng', contract.contractType),
+              _buildDetailRow(
+                'Ngày bắt đầu',
+                _formatDate(contract.startDate),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Đóng'),
+              _buildDetailRow(
+                'Ngày kết thúc',
+                _formatDate(contract.endDate),
               ),
+              _buildDetailRow('Trạng thái', contract.status),
+              _buildDetailRow('Ngày tạo', _formatDate(contract.createdAt)),
             ],
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Đóng'),
+          ),
+        ],
+      ),
     );
   }
 

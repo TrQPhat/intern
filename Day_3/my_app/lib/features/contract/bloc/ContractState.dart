@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:my_app/models/Contract.dart';
+import 'package:my_app/models/contract.dart';
 
 abstract class ContractState extends Equatable {
   const ContractState();
