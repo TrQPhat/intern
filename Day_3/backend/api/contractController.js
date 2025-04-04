@@ -6,6 +6,7 @@ class ContractController {
     try {
       const contracts = await Contract.findAll();
       res.status(200).json(contracts);
+      console.log("Succed to fetch contracts.");
     } catch (error) {
       res
         .status(500)

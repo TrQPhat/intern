@@ -1,6 +1,6 @@
 class Contract {
-  final String? contractId;
-  final String userId;
+  final int? contractId;
+  final int userId;
   final String contractType;
   final DateTime startDate;
   final DateTime endDate;

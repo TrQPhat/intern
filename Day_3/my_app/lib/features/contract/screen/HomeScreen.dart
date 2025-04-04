@@ -23,21 +23,18 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocProvider.value(
-        value: BlocProvider.of<ContractBloc>(context),
-        child: BlocBuilder<ContractBloc, ContractState>(
-          builder: (context, state) {
-            if (state is ContractLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is ContractError) {
-              return Center(child: Text(state.message));
-            } else if (state is ContractLoaded) {
-              return _buildContractList(state.contracts);
-            } else {
-              return const Center(child: Text('Không có dữ liệu'));
-            }
-          },
-        ),
+      body: BlocBuilder<ContractBloc, ContractState>(
+        builder: (context, state) {
+          if (state is ContractLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is ContractError) {
+            return Center(child: Text(state.message));
+          } else if (state is ContractLoaded) {
+            return _buildContractList(state.contracts);
+          } else {
+            return const Center(child: Text('Không có dữ liệu'));
+          }
+        },
       ),
     );
   }
@@ -115,8 +112,8 @@ class HomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildDetailRow('Mã hợp đồng', contract.contractId ?? "N/A"),
-                  _buildDetailRow('Mã người dùng', contract.userId),
+                  _buildDetailRow('Mã hợp đồng', "${contract.contractId}"),
+                  _buildDetailRow('Mã người dùng', "${contract.userId}"),
                   _buildDetailRow('Loại hợp đồng', contract.contractType),
                   _buildDetailRow(
                     'Ngày bắt đầu',
