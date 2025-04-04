@@ -4,19 +4,23 @@ import 'package:my_app/features/auth/bloc/AuthBloc.dart';
 import 'package:my_app/features/auth/repositories/AuthRepository.dart';
 import 'package:my_app/features/auth/screen/LoginScreen.dart';
 import 'package:my_app/features/auth/screen/RegisterScreen.dart';
+import 'package:my_app/features/contract/bloc/ContractBloc.dart';
+import 'package:my_app/features/contract/repositories/ContractRepository.dart';
 import 'package:my_app/features/contract/screen/HomeScreen.dart';
 
+// main.dart
 void main() {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => AuthBloc(AuthRepository())),
+        BlocProvider(create: (_) => AuthBloc(AuthRepository())),
+        BlocProvider(create: (_) => ContractBloc(ContractRepository())),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: LoginScreen(),
+        initialRoute: '/login',
         routes: {
-          "/home": (context) => HomeScreen(),
+          '/login': (context) => LoginScreen(),
+          '/home': (context) => HomeScreen(),
           "/register": (context) => RegisterScreen(),
         },
       ),

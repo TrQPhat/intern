@@ -8,7 +8,7 @@ class ContractRepository {
   Future<List<Contract>> getContracts() async {
     try {
       final response = await http.get(
-        Uri.parse(baseURL),
+        Uri.parse("$baseURL/"),
         headers: {"Content-Type": "application/json"},
       );
 
