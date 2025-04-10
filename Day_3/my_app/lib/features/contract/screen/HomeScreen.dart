@@ -1,9 +1,12 @@
 // features/home/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_app/database/contract_controller.dart';
+import 'package:my_app/features/auth/screen/LoginScreen.dart';
 import 'package:my_app/features/contract/bloc/ContractBloc.dart';
 import 'package:my_app/features/contract/bloc/ContractEvent.dart';
 import 'package:my_app/features/contract/bloc/ContractState.dart';
+import 'package:my_app/features/contract/widgets/AddContractDialog.dart';
 import 'package:my_app/models/contract.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -11,9 +14,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration.zero, () {
-      context.read<ContractBloc>().add(LoadContracts());
-    });
+    // Future.delayed(Duration.zero, () {
+    //   context.read<ContractBloc>().add(LoadContracts());
+    // });
     return Scaffold(
       appBar: AppBar(
         title: const Text('Danh Sách Hợp Đồng'),
@@ -33,7 +36,36 @@ class HomeScreen extends StatelessWidget {
           } else if (state is ContractError) {
             return Center(child: Text(state.message));
           } else if (state is ContractLoaded) {
-            return _buildContractList(state.contracts);
+            return Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()),
+                        );
+                      },
+                      child: Text("Đăng xuất"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final result = await addContractDialog(context);
+
+                        if (result != null) {
+                          context.read<ContractBloc>().add(AddContract(result));
+                        }
+                      },
+                      child: Text("Tạo hợp đồng"),
+                    ),
+                  ],
+                ),
+                Expanded(child: _buildContractList(state.contracts)),
+              ],
+            );
           } else {
             return const Center(child: Text('Không có dữ liệu'));
           }
@@ -48,29 +80,79 @@ class HomeScreen extends StatelessWidget {
       itemBuilder: (context, index) {
         final contract = contracts[index];
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ListTile(
-            title: Text(
-              'Hợp đồng ${contract.contractId}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Loại: ${contract.contractType}'),
-                Text('Trạng thái: ${contract.status}'),
-                Text(
-                  'Thời hạn: ${_formatDate(contract.startDate)} - ${_formatDate(contract.endDate)}',
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: GestureDetector(
+              onDoubleTap: () async {
+                final result = await addContractDialog(context,
+                    contract: contracts[index]);
+
+                if (result != null) {
+                  context.read<ContractBloc>().add(UpdateContract(result));
+                }
+              },
+              child: ListTile(
+                title: Text(
+                  'Hợp đồng ${contract.contractId}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ],
-            ),
-            trailing: _buildStatusIcon(contract.status),
-            onTap: () {
-              // Xử lý khi nhấn vào hợp đồng
-              _showContractDetails(context, contract);
-            },
-          ),
-        );
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Loại: ${contract.contractType}'),
+                    Text('Trạng thái: ${contract.status}'),
+                    Text(
+                      'Thời hạn: ${_formatDate(contract.startDate)} - ${_formatDate(contract.endDate)}',
+                    ),
+                  ],
+                ),
+                trailing: _buildStatusIcon(contract.status),
+                onTap: () {
+                  // Xử lý khi nhấn vào hợp đồng
+                  _showContractDetails(context, contract);
+                },
+                onLongPress: () async {
+                  if (contracts[index].contractId != null) {
+                    bool? confirmDelete = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Xác nhận xóa'),
+                          content:
+                              Text('Bạn có chắc chắn muốn xóa hợp đồng này?'),
+                          actions: [
+                            TextButton(
+                              child: Text('Hủy'),
+                              onPressed: () => Navigator.of(context).pop(false),
+                            ),
+                            TextButton(
+                              child: Text('Xóa',
+                                  style: TextStyle(color: Colors.red)),
+                              onPressed: () {
+                                Navigator.of(context).pop(true);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (confirmDelete == true) {
+                      await ContractController.deleteContract(
+                          contracts[index].contractId!);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Đã xóa hợp đồng')),
+                      );
+                      context.read<ContractBloc>().add(LoadContracts());
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('ID của hợp đồng null')),
+                    );
+                  }
+                },
+              ),
+            ));
       },
     );
   }

@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_app/features/auth/bloc/AuthBloc.dart';
 import 'package:my_app/features/auth/bloc/AuthEvent.dart';
 import 'package:my_app/features/auth/bloc/AuthState.dart';
+import 'package:my_app/features/contract/bloc/ContractBloc.dart';
+import 'package:my_app/features/contract/bloc/ContractEvent.dart';
+import 'package:my_app/services/sync_manager.dart';
 import 'package:my_app/widgets/CustomLink.dart';
 import 'package:my_app/widgets/CustomTextField.dart';
 
@@ -22,6 +25,10 @@ class LoginScreen extends StatelessWidget {
               SnackBar(content: Text("Chào mừng, ${state.user.full_name}!")),
             );
             Navigator.pushReplacementNamed(context, "/home");
+
+            context.read<ContractBloc>().add(SyncContracts());
+            SyncManager()
+                .initialize(context.read<ContractBloc>()); // Bắt đầu đồng bộ
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(
               context,
@@ -83,28 +90,26 @@ class LoginScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          onPressed:
-                              state is AuthLoading
-                                  ? null
-                                  : () {
-                                    context.read<AuthBloc>().add(
-                                      LoginEvent(
-                                        username: _emailController.text,
-                                        password: _passwordController.text,
-                                      ),
-                                    );
-                                  },
-                          child:
-                              state is AuthLoading
-                                  ? const CircularProgressIndicator()
-                                  : const Text(
-                                    'ĐĂNG NHẬP',
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                          onPressed: state is AuthLoading
+                              ? null
+                              : () {
+                                  context.read<AuthBloc>().add(
+                                        LoginEvent(
+                                          username: _emailController.text,
+                                          password: _passwordController.text,
+                                        ),
+                                      );
+                                },
+                          child: state is AuthLoading
+                              ? const CircularProgressIndicator()
+                              : const Text(
+                                  'ĐĂNG NHẬP',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
+                                ),
                         ),
                       );
                     },

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:my_app/models/contract.dart';
 
 abstract class ContractEvent extends Equatable {
   const ContractEvent();
@@ -8,3 +9,32 @@ abstract class ContractEvent extends Equatable {
 }
 
 class LoadContracts extends ContractEvent {}
+
+class AddContract extends ContractEvent {
+  final Contract contract;
+
+  const AddContract(this.contract);
+
+  @override
+  List<Object> get props => [contract];
+}
+
+class UpdateContract extends ContractEvent {
+  final Contract contract;
+
+  const UpdateContract(this.contract);
+
+  @override
+  List<Object> get props => [contract];
+}
+
+class DeleteContract extends ContractEvent {
+  final int contractId;
+
+  const DeleteContract(this.contractId);
+
+  @override
+  List<Object> get props => [contractId];
+}
+
+class SyncContracts extends ContractEvent {}

@@ -29,3 +29,12 @@ class ContractError extends ContractState {
   @override
   List<Object> get props => [message];
 }
+
+class ContractSynced extends ContractState {
+  final String message;
+
+  const ContractSynced([this.message = "Đồng bộ thành công"]);
+
+  @override
+  List<Object> get props => [message];
+}

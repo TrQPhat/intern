@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_app/database/db_helper.dart';
+import 'package:my_app/database/contract_controller.dart';
 import 'package:my_app/features/contract/bloc/ContractEvent.dart';
 import 'package:my_app/features/contract/bloc/ContractState.dart';
 import 'package:my_app/models/contract.dart';
 import 'package:my_app/features/contract/repositories/ContractRepository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ContractBloc extends Bloc<ContractEvent, ContractState> {
   final ContractRepository repository;
@@ -16,28 +14,64 @@ class ContractBloc extends Bloc<ContractEvent, ContractState> {
       emit(ContractLoading());
 
       try {
-        WidgetsFlutterBinding.ensureInitialized();
-        final prefs = await SharedPreferences.getInstance();
-        final savedTime = prefs.getInt('lastApiCallTime');
-        DateTime savedDateTime =
-            DateTime.fromMillisecondsSinceEpoch(savedTime ?? 0);
-        DateTime currentDateTime = DateTime.now();
-        Duration difference = currentDateTime.difference(savedDateTime);
-        if (difference.inMinutes < 5) {
-          //lấy từ database
-          print("chua duoc 5 phut__________________________________________");
-          listContract = await DBHelper.getAllContracts();
-          emit(ContractLoaded(listContract));
-
-          return;
-        } else {
-          print("da duoc 5 phut__________________________________________");
-          listContract = await repository.getContracts();
-          emit(ContractLoaded(listContract));
-        }
+        listContract = await ContractController.getAllContracts();
+        emit(ContractLoaded(listContract));
       } catch (e) {
         emit(ContractError(e.toString()));
         print("Error: ${e.toString()}");
+      }
+    });
+
+    on<AddContract>((event, emit) async {
+      emit(ContractLoading());
+      try {
+        await ContractController.addContract(event.contract);
+        final contracts = await ContractController.getAllContracts();
+        emit(ContractLoaded(contracts));
+      } catch (e) {
+        emit(ContractError("Thêm hợp đồng thất bại: $e"));
+      }
+    });
+
+    on<DeleteContract>((event, emit) async {
+      emit(ContractLoading());
+      try {
+        await ContractController.deleteContract(event.contractId);
+        final contracts = await ContractController.getAllContracts();
+        emit(ContractLoaded(contracts));
+      } catch (e) {
+        emit(ContractError("Xóa hợp đồng thất bại: $e"));
+      }
+    });
+
+    on<UpdateContract>((event, emit) async {
+      emit(ContractLoading());
+      try {
+        await ContractController.updateContract(event.contract);
+        final contracts = await ContractController.getAllContracts();
+        print("Đã đồng bộ dữ liệu, ${DateTime.now()}");
+        emit(ContractLoaded(contracts));
+      } catch (e) {
+        emit(ContractError("Cập nhật hợp đồng thất bại: $e"));
+      }
+    });
+
+    on<SyncContracts>((event, emit) async {
+      emit(ContractLoading());
+
+      try {
+        final contractsToSync = await ContractController.getUnsyncedContracts();
+
+        await repository.syncContractsToServer(contractsToSync);
+
+        final newContracts = await repository.getContracts();
+
+        await ContractController.saveContracts(newContracts);
+
+        // emit(ContractSynced("Đồng bộ thành công"));
+        emit(ContractLoaded(newContracts));
+      } catch (e) {
+        emit(ContractError("Đồng bộ thất bại: $e"));
       }
     });
   }

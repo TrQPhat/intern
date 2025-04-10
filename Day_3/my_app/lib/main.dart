@@ -7,9 +7,12 @@ import 'package:my_app/features/auth/screen/RegisterScreen.dart';
 import 'package:my_app/features/contract/bloc/ContractBloc.dart';
 import 'package:my_app/features/contract/repositories/ContractRepository.dart';
 import 'package:my_app/features/contract/screen/HomeScreen.dart';
+import 'package:my_app/services/firebase_service.dart';
 
-// main.dart
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FirebaseService.initialize();
+
   runApp(
     MultiBlocProvider(
       providers: [

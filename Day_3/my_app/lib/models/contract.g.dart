@@ -17,24 +17,24 @@ const ContractSchema = CollectionSchema(
   name: r'Contract',
   id: 6075293080182411034,
   properties: {
-    r'contractType': PropertySchema(
+    r'contract_type': PropertySchema(
       id: 0,
-      name: r'contractType',
+      name: r'contract_type',
       type: IsarType.string,
     ),
-    r'createdAt': PropertySchema(
+    r'created_at': PropertySchema(
       id: 1,
-      name: r'createdAt',
+      name: r'created_at',
       type: IsarType.dateTime,
     ),
-    r'endDate': PropertySchema(
+    r'end_date': PropertySchema(
       id: 2,
-      name: r'endDate',
+      name: r'end_date',
       type: IsarType.dateTime,
     ),
-    r'startDate': PropertySchema(
+    r'start_date': PropertySchema(
       id: 3,
-      name: r'startDate',
+      name: r'start_date',
       type: IsarType.dateTime,
     ),
     r'status': PropertySchema(
@@ -42,9 +42,14 @@ const ContractSchema = CollectionSchema(
       name: r'status',
       type: IsarType.string,
     ),
-    r'userId': PropertySchema(
+    r'sync_status': PropertySchema(
       id: 5,
-      name: r'userId',
+      name: r'sync_status',
+      type: IsarType.string,
+    ),
+    r'user_id': PropertySchema(
+      id: 6,
+      name: r'user_id',
       type: IsarType.long,
     )
   },
@@ -70,6 +75,7 @@ int _contractEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.contractType.length * 3;
   bytesCount += 3 + object.status.length * 3;
+  bytesCount += 3 + object.syncStatus.length * 3;
   return bytesCount;
 }
 
@@ -84,7 +90,8 @@ void _contractSerialize(
   writer.writeDateTime(offsets[2], object.endDate);
   writer.writeDateTime(offsets[3], object.startDate);
   writer.writeString(offsets[4], object.status);
-  writer.writeLong(offsets[5], object.userId);
+  writer.writeString(offsets[5], object.syncStatus);
+  writer.writeLong(offsets[6], object.userId);
 }
 
 Contract _contractDeserialize(
@@ -100,7 +107,8 @@ Contract _contractDeserialize(
     endDate: reader.readDateTime(offsets[2]),
     startDate: reader.readDateTime(offsets[3]),
     status: reader.readString(offsets[4]),
-    userId: reader.readLong(offsets[5]),
+    syncStatus: reader.readStringOrNull(offsets[5]) ?? 'created',
+    userId: reader.readLong(offsets[6]),
   );
   return object;
 }
@@ -123,6 +131,8 @@ P _contractDeserializeProp<P>(
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readStringOrNull(offset) ?? 'created') as P;
+    case 6:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -298,7 +308,7 @@ extension ContractQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'contractType',
+        property: r'contract_type',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -314,7 +324,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'contractType',
+        property: r'contract_type',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -329,7 +339,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'contractType',
+        property: r'contract_type',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -345,7 +355,7 @@ extension ContractQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'contractType',
+        property: r'contract_type',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -362,7 +372,7 @@ extension ContractQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'contractType',
+        property: r'contract_type',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -375,7 +385,7 @@ extension ContractQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'contractType',
+        property: r'contract_type',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -387,7 +397,7 @@ extension ContractQueryFilter
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'contractType',
+        property: r'contract_type',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -399,7 +409,7 @@ extension ContractQueryFilter
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'contractType',
+        property: r'contract_type',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
@@ -410,7 +420,7 @@ extension ContractQueryFilter
       contractTypeIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'contractType',
+        property: r'contract_type',
         value: '',
       ));
     });
@@ -420,7 +430,7 @@ extension ContractQueryFilter
       contractTypeIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'contractType',
+        property: r'contract_type',
         value: '',
       ));
     });
@@ -430,7 +440,7 @@ extension ContractQueryFilter
       DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'createdAt',
+        property: r'created_at',
         value: value,
       ));
     });
@@ -443,7 +453,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'createdAt',
+        property: r'created_at',
         value: value,
       ));
     });
@@ -456,7 +466,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'createdAt',
+        property: r'created_at',
         value: value,
       ));
     });
@@ -470,7 +480,7 @@ extension ContractQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'createdAt',
+        property: r'created_at',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -483,7 +493,7 @@ extension ContractQueryFilter
       DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'endDate',
+        property: r'end_date',
         value: value,
       ));
     });
@@ -496,7 +506,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'endDate',
+        property: r'end_date',
         value: value,
       ));
     });
@@ -509,7 +519,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'endDate',
+        property: r'end_date',
         value: value,
       ));
     });
@@ -523,7 +533,7 @@ extension ContractQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'endDate',
+        property: r'end_date',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -536,7 +546,7 @@ extension ContractQueryFilter
       DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'startDate',
+        property: r'start_date',
         value: value,
       ));
     });
@@ -549,7 +559,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'startDate',
+        property: r'start_date',
         value: value,
       ));
     });
@@ -562,7 +572,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'startDate',
+        property: r'start_date',
         value: value,
       ));
     });
@@ -576,7 +586,7 @@ extension ContractQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'startDate',
+        property: r'start_date',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -715,11 +725,142 @@ extension ContractQueryFilter
     });
   }
 
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sync_status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'sync_status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'sync_status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'sync_status',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'sync_status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'sync_status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'sync_status',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'sync_status',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition> syncStatusIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sync_status',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterFilterCondition>
+      syncStatusIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'sync_status',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Contract, Contract, QAfterFilterCondition> userIdEqualTo(
       int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'userId',
+        property: r'user_id',
         value: value,
       ));
     });
@@ -732,7 +873,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'userId',
+        property: r'user_id',
         value: value,
       ));
     });
@@ -745,7 +886,7 @@ extension ContractQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'userId',
+        property: r'user_id',
         value: value,
       ));
     });
@@ -759,7 +900,7 @@ extension ContractQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'userId',
+        property: r'user_id',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -778,49 +919,49 @@ extension ContractQueryLinks
 extension ContractQuerySortBy on QueryBuilder<Contract, Contract, QSortBy> {
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByContractType() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'contractType', Sort.asc);
+      return query.addSortBy(r'contract_type', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByContractTypeDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'contractType', Sort.desc);
+      return query.addSortBy(r'contract_type', Sort.desc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'createdAt', Sort.asc);
+      return query.addSortBy(r'created_at', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'createdAt', Sort.desc);
+      return query.addSortBy(r'created_at', Sort.desc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByEndDate() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'endDate', Sort.asc);
+      return query.addSortBy(r'end_date', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByEndDateDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'endDate', Sort.desc);
+      return query.addSortBy(r'end_date', Sort.desc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByStartDate() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'startDate', Sort.asc);
+      return query.addSortBy(r'start_date', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByStartDateDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'startDate', Sort.desc);
+      return query.addSortBy(r'start_date', Sort.desc);
     });
   }
 
@@ -836,15 +977,27 @@ extension ContractQuerySortBy on QueryBuilder<Contract, Contract, QSortBy> {
     });
   }
 
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortBySyncStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sync_status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> sortBySyncStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sync_status', Sort.desc);
+    });
+  }
+
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByUserId() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'userId', Sort.asc);
+      return query.addSortBy(r'user_id', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> sortByUserIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'userId', Sort.desc);
+      return query.addSortBy(r'user_id', Sort.desc);
     });
   }
 }
@@ -865,49 +1018,49 @@ extension ContractQuerySortThenBy
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByContractType() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'contractType', Sort.asc);
+      return query.addSortBy(r'contract_type', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByContractTypeDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'contractType', Sort.desc);
+      return query.addSortBy(r'contract_type', Sort.desc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'createdAt', Sort.asc);
+      return query.addSortBy(r'created_at', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'createdAt', Sort.desc);
+      return query.addSortBy(r'created_at', Sort.desc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByEndDate() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'endDate', Sort.asc);
+      return query.addSortBy(r'end_date', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByEndDateDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'endDate', Sort.desc);
+      return query.addSortBy(r'end_date', Sort.desc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByStartDate() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'startDate', Sort.asc);
+      return query.addSortBy(r'start_date', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByStartDateDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'startDate', Sort.desc);
+      return query.addSortBy(r'start_date', Sort.desc);
     });
   }
 
@@ -923,15 +1076,27 @@ extension ContractQuerySortThenBy
     });
   }
 
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenBySyncStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sync_status', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Contract, Contract, QAfterSortBy> thenBySyncStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sync_status', Sort.desc);
+    });
+  }
+
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByUserId() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'userId', Sort.asc);
+      return query.addSortBy(r'user_id', Sort.asc);
     });
   }
 
   QueryBuilder<Contract, Contract, QAfterSortBy> thenByUserIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'userId', Sort.desc);
+      return query.addSortBy(r'user_id', Sort.desc);
     });
   }
 }
@@ -941,25 +1106,26 @@ extension ContractQueryWhereDistinct
   QueryBuilder<Contract, Contract, QDistinct> distinctByContractType(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'contractType', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'contract_type',
+          caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<Contract, Contract, QDistinct> distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'createdAt');
+      return query.addDistinctBy(r'created_at');
     });
   }
 
   QueryBuilder<Contract, Contract, QDistinct> distinctByEndDate() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'endDate');
+      return query.addDistinctBy(r'end_date');
     });
   }
 
   QueryBuilder<Contract, Contract, QDistinct> distinctByStartDate() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'startDate');
+      return query.addDistinctBy(r'start_date');
     });
   }
 
@@ -970,9 +1136,16 @@ extension ContractQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Contract, Contract, QDistinct> distinctBySyncStatus(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sync_status', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Contract, Contract, QDistinct> distinctByUserId() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'userId');
+      return query.addDistinctBy(r'user_id');
     });
   }
 }
@@ -987,25 +1160,25 @@ extension ContractQueryProperty
 
   QueryBuilder<Contract, String, QQueryOperations> contractTypeProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'contractType');
+      return query.addPropertyName(r'contract_type');
     });
   }
 
   QueryBuilder<Contract, DateTime, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'createdAt');
+      return query.addPropertyName(r'created_at');
     });
   }
 
   QueryBuilder<Contract, DateTime, QQueryOperations> endDateProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'endDate');
+      return query.addPropertyName(r'end_date');
     });
   }
 
   QueryBuilder<Contract, DateTime, QQueryOperations> startDateProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'startDate');
+      return query.addPropertyName(r'start_date');
     });
   }
 
@@ -1015,9 +1188,15 @@ extension ContractQueryProperty
     });
   }
 
+  QueryBuilder<Contract, String, QQueryOperations> syncStatusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sync_status');
+    });
+  }
+
   QueryBuilder<Contract, int, QQueryOperations> userIdProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'userId');
+      return query.addPropertyName(r'user_id');
     });
   }
 }
