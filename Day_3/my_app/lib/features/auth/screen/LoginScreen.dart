@@ -27,8 +27,8 @@ class LoginScreen extends StatelessWidget {
             Navigator.pushReplacementNamed(context, "/home");
 
             context.read<ContractBloc>().add(SyncContracts());
-            SyncManager()
-                .initialize(context.read<ContractBloc>()); // Bắt đầu đồng bộ
+            // SyncManager()
+            //     .initialize(context.read<ContractBloc>()); // Bắt đầu đồng bộ
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(
               context,
