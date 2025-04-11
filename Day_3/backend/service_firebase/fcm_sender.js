@@ -1,7 +1,8 @@
 const admin = require("firebase-admin");
 const serviceAccount = require("./firebase-adminsdk.json");
-const ContractController = require("../api/ContractLogController"); // Đường dẫn đúng
-const contractController = new ContractController();
+const UserController = require("../api/userController");
+const ContractLogController = require("../api/ContractLogController");
+const contractLogController = new ContractLogController();
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -20,17 +21,17 @@ async function sendFCMNotification(token, title, body, data = {}) {
 
   try {
     const response = await admin.messaging().send(message);
-    console.log("✅ Gửi thành công:", response);
+    console.log("Gửi thành công:", response);
     return true;
   } catch (error) {
-    console.error("❌ Gửi FCM lỗi:", error);
+    console.error("Gửi FCM lỗi:", error);
     return false;
   }
 }
 
 // Xử lý contract log định kỳ và gửi FCM
-async function processContractLogs(fcmTokens = []) {
-  const logs = await contractController.getAllContractLogs();
+async function processContractLogs() {
+  const logs = await contractLogController.getAllContractLogs();
 
   if (logs.length === 0) return;
 
@@ -43,24 +44,26 @@ async function processContractLogs(fcmTokens = []) {
       contract_id: String(log.contract_id),
       action_type: log.action_type,
     };
-
-    for (const token of fcmTokens) {
+    //console.log(JSON.stringify(log));
+    const token = await UserController.getDeviceToken(log.user_id);
+    if (token != "offline" && token != null) {
       await sendFCMNotification(token, title, body, data);
+
+      //cập nhật trạng thái notified
+      await contractLogController.updateSyncStatusToNotified(
+        log.contract_log_id
+      );
     }
   }
 
-  // Sau khi gửi FCM xong thì xóa log
-  await contractController.deleteAllContractLogs();
+  // // xóa log
+  // await contractLogController.deleteAllContractLogs();
   console.log(`🧹 Đã xoá ${logs.length} log sau khi gửi FCM.`);
 }
 
 // Gọi định kỳ mỗi 5 giây
 setInterval(async () => {
-  const fcmTokens = [
-    "cJ_lpeIPSQe_ysxzeDP-BX:APA91bFtMFGf1nO-d75IqFlDsJ8g83_DJUBJW3yNx3urjshgDR5ryu8NWaQVtuUdx5jlTrcvNCG7ltFdomt8XdHOQvOWhExOxJXPg5FNsOONU-WESu8SBCY",
-  ];
-
-  await processContractLogs(fcmTokens);
+  await processContractLogs();
 }, 5000);
 
 module.exports = { sendFCMNotification, processContractLogs };

@@ -1,4 +1,3 @@
-// models/ContractLog.js
 const { DataTypes } = require("sequelize");
 const sequelize = require("../connect/db");
 
@@ -20,6 +19,11 @@ const ContractLog = sequelize.define(
     action_time: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+    sync_status: {
+      type: DataTypes.ENUM("pending", "synced"),
+      allowNull: false,
+      defaultValue: "pending",
     },
   },
   {

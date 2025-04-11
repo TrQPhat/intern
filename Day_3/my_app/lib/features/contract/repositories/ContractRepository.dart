@@ -148,9 +148,27 @@ class ContractRepository {
             break;
         }
 
+        //xóa log
+        try {
+          final response = await http.delete(
+            Uri.parse('$baseURL/contract-log/${contract.contractId}'),
+            headers: {"Content-Type": "application/json"},
+          );
+
+          if (response.statusCode == 200) {
+            print('Xóa log thành công');
+          } else if (response.statusCode == 404) {
+            print('Không tìm thấy log để xóa');
+          } else {
+            print('Lỗi khi xóa log: ${response.statusCode}');
+          }
+        } catch (e) {
+          print('Lỗi kết nối khi gọi API: $e');
+        }
+
         // đổi thành 'synced'
         contract.syncStatus = 'synced';
-        await ContractController.addContract(contract);
+        await ContractController.updateContract(contract);
       } catch (e) {
         debugPrint('Lỗi khi sync contract ${contract.contractId}: $e');
       }

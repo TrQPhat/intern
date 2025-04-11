@@ -37,7 +37,7 @@ class SyncManager {
 
   void _startSyncScheduler() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       enqueueSync("Đồng bộ tự động mỗi 5 phút");
     });
   }
@@ -74,7 +74,7 @@ class SyncManager {
     final connected = await ConnectionService().hasConnection();
     if (!connected) throw Exception("Không có kết nối mạng");
 
-    _bloc.add(SyncContracts());
+    _bloc.add(SyncContractsFromIsar());
     _lastSyncTime = DateTime.now();
 
     if (kDebugMode) {

@@ -56,20 +56,33 @@ class ContractBloc extends Bloc<ContractEvent, ContractState> {
       }
     });
 
-    on<SyncContracts>((event, emit) async {
-      emit(ContractLoading());
+    on<SyncContractsFromIsar>((event, emit) async {
+      //emit(ContractLoading());
 
       try {
         final contractsToSync = await ContractController.getUnsyncedContracts();
 
         await repository.syncContractsToServer(contractsToSync);
 
-        final newContracts = await repository.getContracts();
+        // final newContracts = await repository.getContracts();
 
+        // await ContractController.saveContracts(newContracts);
+
+        //emit(ContractLoaded(newContracts));
+      } catch (e) {
+        emit(ContractError("Đồng bộ thất bại: $e"));
+      }
+    });
+
+    on<SyncContractsFromServer>((event, emit) async {
+      emit(ContractLoading());
+
+      try {
+        final newContracts = await repository.getContracts();
+        await ContractController.clearContract();
         await ContractController.saveContracts(newContracts);
 
-        // emit(ContractSynced("Đồng bộ thành công"));
-        emit(ContractLoaded(newContracts));
+        emit(ContractLoaded(await ContractController.getAllContracts()));
       } catch (e) {
         emit(ContractError("Đồng bộ thất bại: $e"));
       }

@@ -44,3 +44,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .qodo
+
+Day_3/backend/service_firebase/firebase-adminsdk.json

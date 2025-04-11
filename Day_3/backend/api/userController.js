@@ -94,6 +94,46 @@ class UserController {
       res.status(500).json({ message: "Lỗi khi đăng nhập", error });
     }
   }
+
+  static async updateDeviceToken(req, res) {
+    try {
+      const { device_token } = req.body;
+      const userId = req.params.id;
+
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User không tồn tại" });
+      }
+
+      await user.update({ device_token });
+
+      res.status(200).json({
+        message: "Cập nhật device_token thành công!",
+        user,
+      });
+      console.log("Đã cập nhật device_token ", new Date());
+    } catch (error) {
+      res.status(500).json({ message: "Lỗi khi cập nhật device_token", error });
+    }
+  }
+
+  // lấy device_toke theo user_id
+  static async getDeviceToken(userId) {
+    try {
+      const user = await User.findByPk(userId, {
+        attributes: ["device_token"],
+      });
+
+      if (!user || !user.device_token) {
+        throw new Error("Không tìm thấy device_token");
+      }
+
+      return user.device_token;
+    } catch (error) {
+      console.error("Lỗi khi lấy device_token: ", error.message);
+      throw error;
+    }
+  }
 }
 
 module.exports = UserController;

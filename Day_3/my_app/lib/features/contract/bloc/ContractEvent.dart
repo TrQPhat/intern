@@ -37,4 +37,6 @@ class DeleteContract extends ContractEvent {
   List<Object> get props => [contractId];
 }
 
-class SyncContracts extends ContractEvent {}
+class SyncContractsFromIsar extends ContractEvent {}
+
+class SyncContractsFromServer extends ContractEvent {}

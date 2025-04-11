@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_app/features/auth/bloc/AuthBloc.dart';
+import 'package:my_app/features/auth/bloc/AuthEvent.dart';
 import 'package:my_app/features/auth/repositories/AuthRepository.dart';
 import 'package:my_app/features/auth/screen/LoginScreen.dart';
 import 'package:my_app/features/auth/screen/RegisterScreen.dart';
@@ -16,7 +17,13 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => AuthBloc(AuthRepository())),
+        BlocProvider(
+          create: (context) {
+            final authBloc = AuthBloc(AuthRepository());
+            authBloc.add(CheckOldLogin());
+            return authBloc;
+          },
+        ),
         BlocProvider(create: (_) => ContractBloc(ContractRepository())),
       ],
       child: MaterialApp(

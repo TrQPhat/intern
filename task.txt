@@ -1,0 +1,11 @@
+Day 5:
+- về Isar:
++ Tạo schema & CRUD (Create, Read, Update, Delete) ==> note lại vào doc để a xem cấu trúc như nào 
++ Lưu dữ liệu từ API vào Isar khi online.
++ Hiển thị dữ liệu từ Isar khi offline.
++ Xử lý lỗi mạng (try-catch, timeout).
+- Test tích hợp firebase cho realtime:
++ Hiện tại chưa có socket thì làm 1 cái interval dưới nodejs làm các nhiệm vụ sau để gửi fcm reload data: có data mới, xoá data, update data -> FCM
++ App nhận FCM để reload danh sách hoặc mở chi tiết : cho trường hợp background, foreground , Terminated
+
+Next Day: chuyển giao diện figma

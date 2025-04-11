@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
@@ -8,7 +9,7 @@ import 'package:my_app/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepository {
-  final String baseURL = "http://10.0.2.2:5000/api/users";
+  static final String baseURL = "http://10.0.2.2:5000/api/users";
   Future<User> login(String username, String password) async {
     try {
       final response = await http
@@ -79,6 +80,39 @@ class AuthRepository {
       throw Exception("Lỗi kết nối: ${e.message}");
     } catch (e) {
       throw Exception("Lỗi không xác định: ${e.toString()}");
+    }
+  }
+
+  Future<User> updateDeviceToken(int userId, String deviceToken) async {
+    final url = Uri.parse('$baseURL/$userId');
+
+    try {
+      final response = await http
+          .put(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'device_token': deviceToken,
+            }),
+          )
+          .timeout(const Duration(seconds: 10)); // Timeout sau 10 giây
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("Đã cập nhật device_token");
+        return User.fromJson(data['user']);
+      } else {
+        print("Lỗi khi cập nhật device_token");
+        throw Exception('Lỗi server: ${response.statusCode}');
+      }
+    } on HttpException {
+      throw Exception('Kết nối không ổn định.');
+    } on TimeoutException {
+      throw Exception('Kết nối đến máy chủ quá lâu. Vui lòng thử lại sau.');
+    } catch (e) {
+      throw Exception('Lỗi không xác định: $e');
     }
   }
 }

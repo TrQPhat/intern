@@ -6,7 +6,8 @@ import 'db_helper.dart';
 
 class ContractController {
   /// Thêm một hợp đồng
-  static Future<void> addContract(Contract contract) async {
+  static Future<void> addContract(Contract contract,
+      {String status = "created"}) async {
     final prefs = await SharedPreferences.getInstance();
     final userId = int.tryParse(prefs.getString('user_id') ?? "0") ?? 0;
 
@@ -17,8 +18,10 @@ class ContractController {
       endDate: contract.endDate,
       status: contract.status,
       createdAt: contract.createdAt,
-      syncStatus: 'created',
+      syncStatus: status,
     );
+
+    if (contract.contractId != 0) newContract.contractId = contract.contractId;
 
     final isarInstance = await DBHelper.isar;
     await isarInstance.writeTxn(() async {
@@ -52,8 +55,9 @@ class ContractController {
         .findAll();
   }
 
-  static Future<void> updateContract(Contract updatedContract) async {
-    updatedContract.syncStatus = 'updated';
+  static Future<void> updateContract(Contract updatedContract,
+      {String status = "updated"}) async {
+    updatedContract.syncStatus = status;
 
     final isarInstance = await DBHelper.isar;
     await isarInstance.writeTxn(() async {
@@ -62,15 +66,31 @@ class ContractController {
   }
 
   /// Xóa hợp đồng theo ID
-  static Future<void> deleteContract(int id) async {
+  static Future<void> deleteContract(int id,
+      {String status = "deleted"}) async {
     final isarInstance = await DBHelper.isar;
     final contract = await isarInstance.contracts.get(id);
     if (contract != null) {
-      contract.syncStatus = 'deleted';
-      await isarInstance.writeTxn(() async {
-        await isarInstance.contracts.put(contract);
-      });
+      if (status == "deleted") {
+        contract.syncStatus = status;
+        await isarInstance.writeTxn(() async {
+          await isarInstance.contracts.put(contract);
+        });
+      } else {
+        await isarInstance.writeTxn(() async {
+          await isarInstance.contracts.delete(id);
+        });
+      }
     }
+  }
+
+  //clear
+  static Future<void> clearContract() async {
+    final isarInstance = await DBHelper.isar;
+
+    await isarInstance.writeTxn(() async {
+      await isarInstance.contracts.clear();
+    });
   }
 
   //lấy các hợp đồng cần đồng bô

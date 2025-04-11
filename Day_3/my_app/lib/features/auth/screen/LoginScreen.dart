@@ -9,11 +9,23 @@ import 'package:my_app/services/sync_manager.dart';
 import 'package:my_app/widgets/CustomLink.dart';
 import 'package:my_app/widgets/CustomTextField.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  LoginScreen({super.key});
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +38,12 @@ class LoginScreen extends StatelessWidget {
             );
             Navigator.pushReplacementNamed(context, "/home");
 
-            context.read<ContractBloc>().add(SyncContracts());
-            // SyncManager()
-            //     .initialize(context.read<ContractBloc>()); // Bắt đầu đồng bộ
+            context.read<ContractBloc>().add(SyncContractsFromServer());
+            SyncManager().initialize(context.read<ContractBloc>());
           } else if (state is AuthFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.error)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.error)),
+            );
           }
         },
         child: Container(
@@ -49,19 +60,15 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.account_circle,
-                    size: 100,
-                    color: Colors.white,
-                  ),
+                  const Icon(Icons.account_circle,
+                      size: 100, color: Colors.white),
                   const SizedBox(height: 20),
                   const Text(
                     'Đăng Nhập',
                     style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
                   const SizedBox(height: 40),
                   CustomTextField(
@@ -87,15 +94,15 @@ class LoginScreen extends StatelessWidget {
                             backgroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
+                                borderRadius: BorderRadius.circular(30)),
                           ),
                           onPressed: state is AuthLoading
                               ? null
                               : () {
                                   context.read<AuthBloc>().add(
                                         LoginEvent(
-                                          username: _emailController.text,
+                                          username:
+                                              _emailController.text.trim(),
                                           password: _passwordController.text,
                                         ),
                                       );
@@ -117,12 +124,10 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
-                      // Xử lý quên mật khẩu
+                      // TODO: forgot password
                     },
-                    child: const Text(
-                      'Quên mật khẩu?',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: const Text('Quên mật khẩu?',
+                        style: TextStyle(color: Colors.white)),
                   ),
                   const SizedBox(height: 20),
                   CustomLink(

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_app/database/contract_controller.dart';
+import 'package:my_app/features/auth/bloc/AuthBloc.dart';
+import 'package:my_app/features/auth/bloc/AuthEvent.dart';
 import 'package:my_app/features/auth/screen/LoginScreen.dart';
 import 'package:my_app/features/contract/bloc/ContractBloc.dart';
 import 'package:my_app/features/contract/bloc/ContractEvent.dart';
@@ -43,11 +45,8 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => LoginScreen()),
-                        );
+                        context.read<AuthBloc>().add(LogOut());
+                        Navigator.pushReplacementNamed(context, "/login");
                       },
                       child: Text("Đăng xuất"),
                     ),
@@ -129,6 +128,8 @@ class HomeScreen extends StatelessWidget {
                                   style: TextStyle(color: Colors.red)),
                               onPressed: () {
                                 Navigator.of(context).pop(true);
+                                context.read<ContractBloc>().add(DeleteContract(
+                                    contracts[index].contractId!));
                               },
                             ),
                           ],

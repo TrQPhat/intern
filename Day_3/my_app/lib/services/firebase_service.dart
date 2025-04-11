@@ -1,11 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:isar/isar.dart';
 import 'package:my_app/database/contract_controller.dart';
-import 'package:my_app/models/contract.dart';
+import 'package:my_app/features/auth/repositories/AuthRepository.dart';
 import 'package:my_app/features/contract/repositories/ContractRepository.dart';
 import 'package:my_app/services/connection_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -19,6 +19,9 @@ class FirebaseService {
 
     // Lấy FCM Token
     String? token = await messaging.getToken();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('device_token', token!);
+
     print("🔑 FCM Token: $token");
 
     // Cấu hình local notification
@@ -74,7 +77,7 @@ class FirebaseService {
         try {
           final contract =
               await ContractRepository.getContractByID(int.parse(contractId));
-          await ContractController.addContract(contract);
+          await ContractController.addContract(contract, status: "synced");
           print('đã thêm contract: $contractId');
         } catch (e) {
           print(' Lỗi lấy contract: $e');
@@ -84,7 +87,7 @@ class FirebaseService {
         try {
           final contract =
               await ContractRepository.getContractByID(int.parse(contractId));
-          await ContractController.updateContract(contract);
+          await ContractController.updateContract(contract, status: "synced");
           print('đã cập nhật contract: $contractId');
         } catch (e) {
           print(' Lỗi khi đồng bộ contract: $e');
@@ -93,7 +96,8 @@ class FirebaseService {
 
       case 'delete':
         try {
-          await ContractController.deleteContract(int.parse(contractId));
+          await ContractController.deleteContract(int.parse(contractId),
+              status: "synced");
           print('Đã xóa contract $contractId khỏi isar');
         } catch (e) {
           print(' Lỗi khi xóa contract: $e');

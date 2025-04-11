@@ -1,5 +1,6 @@
 const { where } = require("sequelize");
 const Contract = require("../models/Contract");
+const ContractLog = require("../models/ContractLog");
 const { sendFCM } = require("../service_firebase/fcm_sender");
 
 class ContractController {
@@ -31,10 +32,18 @@ class ContractController {
   // Thêm hợp đồng mới
   static async createContract(req, res) {
     try {
-      const { user_id, contract_type, start_date, end_date, status } = req.body;
+      const {
+        contract_id,
+        user_id,
+        contract_type,
+        start_date,
+        end_date,
+        status,
+      } = req.body;
       const created_at = new Date();
 
       const newContract = await Contract.create({
+        contract_id,
         user_id,
         contract_type,
         start_date,
@@ -112,6 +121,18 @@ class ContractController {
         message: "Lỗi khi lấy thông tin hợp đồng",
         error: error.message,
       });
+    }
+  }
+
+  static async deleteLogsByContractId(contractId) {
+    const deleted = await ContractLog.destroy({
+      where: { contract_id: contractId },
+    });
+
+    if (deleted) {
+      return res.status(200).json({ message: "Xóa thành công." });
+    } else {
+      return res.status(404).json({ message: "Không tìm thấy log để xóa." });
     }
   }
 }

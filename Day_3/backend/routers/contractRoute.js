@@ -15,4 +15,9 @@ router.put("/:contract_id", contractController.updateContract);
 
 router.delete("/:contract_id", contractController.deleteContract);
 
+router.delete(
+  "/contract-log/:contractId",
+  contractController.deleteLogsByContractId
+);
+
 module.exports = router;
